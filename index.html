@@ -3,349 +3,538 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulasi Switch Jaringan Sederhana</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Petualangan di Dunia Jaringan Komputer dan Internet | Data Explorer</title>
+    
     <style>
+        /* Gaya Dasar dan Reset */
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0d1a26; /* Biru gelap */
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Tema Warna Digital / Neon */
+        :root {
+            --primary-color: #007bff; /* Biru terang */
+            --accent-color: #00ffc4; /* Neon cyan */
+            --text-color: #e0e0e0;
+            --bg-dark: #0d1a26;
+            --bg-light: #172a3a;
+        }
+
+        /* Efek Neon untuk Heading */
+        h1, h2, h3 {
+            color: var(--accent-color);
+            text-shadow: 0 0 5px rgba(0, 255, 196, 0.5), 0 0 10px rgba(0, 255, 196, 0.3);
+        }
+
+        /* Container Utama */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--bg-light);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        /* Tombol Mulai Petualangan */
+        #start-button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px var(--primary-color);
+            text-transform: uppercase;
+        }
+
+        #start-button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+
+        /* Bagian Materi */
+        .materi-section {
+            background: var(--bg-light);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none; /* Sembunyikan default */
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .materi-section.active {
+            display: block; /* Tampilkan yang aktif */
+        }
+
+        /* Animasi Sederhana - Data Packet */
+        .data-packet {
+            width: 20px;
+            height: 15px;
+            background-color: #ff0077; /* Neon pink */
+            border-radius: 3px;
+            position: absolute;
+            opacity: 0;
+            transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+            box-shadow: 0 0 5px #ff0077;
+        }
+
+        /* Navigasi */
+        .nav-buttons {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem;
+            justify-content: space-between;
+            margin-top: 20px;
         }
-        #networkCanvas {
-            border: 2px solid #3b82f6;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+        .nav-buttons button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        .control-panel {
-            background-color: #ffffff;
-            padding: 1rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            max-width: 400px;
-            width: 95%;
-            margin-top: 1rem;
+
+        .nav-buttons button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        /* Kuis */
+        #quiz-section {
+            background: var(--bg-light);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
+            border-left: 5px solid #ffaa00; /* Neon Orange */
+        }
+
+        .quiz-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 5px;
+        }
+
+        .quiz-question label {
+            display: block;
+            margin: 5px 0;
+            padding: 10px;
+            background: #111;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .quiz-question label:hover {
+            background: #222;
+        }
+
+        .quiz-question input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        #score-display {
+            font-size: 1.5em;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 600px) {
+            header {
+                padding: 20px 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .nav-buttons button {
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <header id="welcome-screen">
+            <h1>Selamat Datang, Data Explorer!</h1>
+            <p>Bersiaplah untuk **Petualangan di Dunia Jaringan Komputer dan Internet**.</p>
+            <p>Jelajahi setiap wilayah untuk memahami bagaimana data bepergian melintasi dunia digital.</p>
+            <button id="start-button">Mulai Petualangan</button>
+        </header>
 
-    <h1 class="text-2xl font-bold text-gray-800 mb-4">Simulasi Switching Jaringan (LAN)</h1>
-    <p class="text-sm text-gray-600 mb-4 text-center">Demonstrasi bagaimana *Switch* mengirim paket data.</p>
+        <main id="adventure-content" style="display: none;">
+            
+            <section id="materi-1" class="materi-section" data-title="Jaringan Komputer">
+                <h2>🛰️ Wilayah 1: Pengertian Jaringan Komputer</h2>
+                <p><strong>Halo, penjelajah data!</strong> Di wilayah pertama ini, kita akan memahami apa itu jaringan komputer. Anggap saja ini sebagai jalan raya rahasia yang menghubungkan berbagai "kota" (komputer) agar mereka bisa saling bicara.</p>
+                
+                <h3>Apa itu Jaringan Komputer?</h3>
+                <p>Jaringan komputer adalah sekumpulan komputer dan perangkat keras lainnya yang saling terhubung untuk dapat **berbagi sumber daya** (seperti printer atau file) dan **berkomunikasi** satu sama lain. Tujuannya adalah efisiensi dan pertukaran informasi yang cepat.</p>
+                <div class="animation-placeholder">
+                    <p style="text-align: center; color: var(--accent-color);">[Animasi Sederhana: Paket Data Bergerak]</p>
+                </div>
+            </section>
 
-    <!-- Canvas untuk Visualisasi Jaringan -->
-    <canvas id="networkCanvas" width="360" height="360" class="w-full max-w-lg"></canvas>
+            <section id="materi-2" class="materi-section" data-title="Jenis-jenis Jaringan">
+                <h2>🗺️ Wilayah 2: Jenis-jenis Jaringan (LAN, MAN, WAN)</h2>
+                <p><strong>Perhatian, Data Explorer!</strong> Wilayah ini mengajarkanmu tentang skala atau seberapa luas cakupan sebuah jaringan. Ada tiga tipe jalan utama yang harus kamu kenali!</p>
+                
+                <ul>
+                    <li>**LAN (Local Area Network):** Jaringan lokal kecil, seperti di rumah, sekolah, atau kantor. Ibarat jalanan di satu komplek perumahan.</li>
+                    <li>**MAN (Metropolitan Area Network):** Jaringan yang mencakup area yang lebih besar, biasanya satu kota atau wilayah metropolitan. Mirip jalan tol antar-kota dekat.</li>
+                    <li>**WAN (Wide Area Network):** Jaringan luas yang mencakup antar kota, negara, atau bahkan benua. **Internet** adalah contoh WAN terbesar! Ini seperti jalur penerbangan global.</li>
+                </ul>
+            </section>
+            
+            <section id="materi-3" class="materi-section" data-title="Topologi Jaringan">
+                <h2>🔗 Wilayah 3: Topologi Jaringan</h2>
+                <p><strong>Selamat datang di persimpangan Topologi Jaringan!</strong> Topologi adalah **struktur fisik atau logis** bagaimana perangkat-perangkat dalam jaringan saling terhubung. Bagaimana cara kota-kota dihubungkan?</p>
+                
+                <ul>
+                    <li>**Topologi Bus:** Semua terhubung ke satu kabel utama. Simpel, tapi jika kabel utama rusak, semua mati.</li>
+                    <li>**Topologi Ring (Cincin):** Setiap perangkat terhubung ke dua perangkat lain, membentuk cincin.</li>
+                    <li>**Topologi Star (Bintang):** Semua perangkat terhubung ke satu titik pusat (Hub/Switch). Paling umum, jika satu kabel rusak, yang lain tetap jalan.</li>
+                </ul>
+                
+            </section>
 
-    <!-- Panel Kontrol -->
-    <div class="control-panel flex flex-col space-y-4">
-        <div id="message-box" class="min-h-[2rem] p-2 text-sm font-medium text-center rounded-md bg-blue-100 text-blue-700">
-            Pilih perangkat asal dan tujuan, lalu kirim paket!
-        </div>
+            <section id="materi-4" class="materi-section" data-title="Perangkat Jaringan">
+                <h2>⚙️ Wilayah 4: Perangkat Jaringan (Hub, Switch, Router, Modem)</h2>
+                <p><strong>Saatnya memeriksa perlengkapan, Data Explorer!</strong> Perangkat-perangkat ini adalah "mesin" yang memastikan datamu sampai ke tujuan dengan benar.</p>
+                
+                <ul>
+                    <li>**Modem:** Mengubah sinyal digital komputer menjadi sinyal analog untuk dikirim melalui kabel telepon/serat optik, dan sebaliknya. Jembatan ke luar jaringanmu.</li>
+                    <li>**Hub:** Perangkat sederhana yang mengirim data ke semua perangkat yang terhubung. Kurang efisien.</li>
+                    <li>**Switch:** Lebih pintar dari Hub, ia tahu alamat perangkat tujuan sehingga hanya mengirim data ke port yang tepat.</li>
+                    <li>**Router:** **Pemandu jalan utama.** Menghubungkan dua atau lebih jaringan yang berbeda (misalnya, jaringan rumahmu ke Internet) dan menentukan jalur terbaik untuk paket data.</li>
+                </ul>
+            </section>
 
-        <div class="flex flex-col sm:flex-row justify-between space-y-3 sm:space-y-0 sm:space-x-3">
-            <!-- Pilihan Perangkat Asal -->
-            <div class="flex-1">
-                <label for="sourceDevice" class="block text-sm font-medium text-gray-700">Perangkat Asal:</label>
-                <select id="sourceDevice" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm">
-                    <option value="PC1">PC 1 (192.168.1.1)</option>
-                    <option value="PC2">PC 2 (192.168.1.2)</option>
-                    <option value="PC3">PC 3 (192.168.1.3)</option>
-                </select>
+            <section id="materi-5" class="materi-section" data-title="Internet dan Cara Kerjanya">
+                <h2>🌐 Wilayah 5: Internet dan Cara Kerjanya</h2>
+                <p><strong>Kita sampai di samudra terluas, Internet!</strong> Internet adalah **jaringan global** dari jutaan jaringan komputer yang saling terhubung. Ini bekerja berdasarkan serangkaian aturan (protokol) yang disebut **TCP/IP**.</p>
+                
+                <p>Saat kamu membuka website, datamu dipecah menjadi **paket-paket kecil**, lalu setiap paket mencari rute tercepat melalui banyak router, melintasi WAN, hingga mencapai server tujuan, dan kembali lagi. Hebat, kan?</p>
+            </section>
+
+            <section id="materi-6" class="materi-section" data-title="IP Address dan DNS">
+                <h2>🆔 Wilayah 6: IP Address dan DNS</h2>
+                <p><strong>Mengenal Identitas Digital!</strong> Sama seperti alamat rumah, setiap perangkat di jaringan harus punya alamat unik.</p>
+                
+                <ul>
+                    <li>**IP Address:** Alamat numerik unik yang diberikan ke setiap perangkat yang terhubung ke jaringan yang menggunakan protokol Internet. Contoh: <code>192.168.1.1</code>. Ini adalah koordinat tujuan paket datamu.</li>
+                    <li>**DNS (Domain Name System):** Sistem yang menerjemahkan nama domain (seperti <code>google.com</code>) menjadi IP Address yang bisa dibaca komputer. Ingat nama lebih mudah daripada angka, bukan? **DNS adalah buku telepon Internet.**</li>
+                </ul>
+            </section>
+
+            <section id="quiz-section" class="materi-section" data-title="Ujian Data">
+                <h2>🏆 Ujian Data: Uji Pengetahuanmu!</h2>
+                <p><strong>Saatnya Data Explorer diuji!</strong> Jawab 5 pertanyaan acak ini untuk membuktikan kamu berhasil menjelajahi dunia jaringan!</p>
+                <form id="quiz-form">
+                    </form>
+                <button id="submit-quiz" onclick="submitQuiz()">Selesaikan Ujian</button>
+                <div id="score-display"></div>
+            </section>
+            
+            <div class="nav-buttons">
+                <button id="prev-btn" onclick="navigate(-1)" disabled>← Wilayah Sebelumnya</button>
+                <button id="next-btn" onclick="navigate(1)">Wilayah Selanjutnya →</button>
             </div>
-
-            <!-- Pilihan Perangkat Tujuan -->
-            <div class="flex-1">
-                <label for="destinationDevice" class="block text-sm font-medium text-gray-700">Perangkat Tujuan:</label>
-                <select id="destinationDevice" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm">
-                    <option value="PC2">PC 2 (192.168.1.2)</option>
-                    <option value="PC1">PC 1 (192.168.1.1)</option>
-                    <option value="PC3">PC 3 (192.168.1.3)</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Tombol Kirim -->
-        <button id="sendButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed" onclick="startSimulation()">
-            Kirim Paket Data (PING!)
-        </button>
+            
+        </main>
     </div>
 
     <script>
-        const canvas = document.getElementById('networkCanvas');
-        const ctx = canvas.getContext('2d');
-        const messageBox = document.getElementById('message-box');
-        const sendButton = document.getElementById('sendButton');
-
-        // Konstanta Jaringan
-        const CANVAS_SIZE = 360;
-        const SWITCH_POS = { x: CANVAS_SIZE / 2, y: CANVAS_SIZE / 2 };
-        const DEVICE_RADIUS = 20;
-        const PACKET_RADIUS = 5;
-
-        // Mendefinisikan Perangkat dalam Jaringan (Topologi Star)
-        const devices = [
-            { id: 'PC1', ip: '192.168.1.1', mac: 'AA:BB:CC:DD:EE:01', color: '#10b981', angle: -Math.PI / 2, pos: {} }, // Atas
-            { id: 'PC2', ip: '192.168.1.2', mac: 'AA:BB:CC:DD:EE:02', color: '#f59e0b', angle: Math.PI * 0.1, pos: {} }, // Kanan Atas
-            { id: 'PC3', ip: '192.168.1.3', mac: 'AA:BB:CC:DD:EE:03', color: '#ef4444', angle: Math.PI * 0.75, pos: {} }, // Kiri Bawah
-        ];
-
-        // Struktur Tabel MAC Address pada Switch (Untuk demo pembelajaran)
-        let macTable = {}; // macTable = { 'AA:BB:CC:DD:EE:01': { port: 1, ip: '192.168.1.1' }, ... }
-
-        // Variabel Animasi Paket
-        let packet = null;
-        let animationFrameId = null;
-        let isSimulating = false;
-
-        // --- Fungsi Utilitas Matematika ---
-        function getDevicePosition(device) {
-            // Menghitung posisi perangkat dalam lingkaran di sekitar switch
-            const radius = CANVAS_SIZE * 0.4;
-            return {
-                x: SWITCH_POS.x + radius * Math.cos(device.angle),
-                y: SWITCH_POS.y + radius * Math.sin(device.angle)
-            };
-        }
-
-        // --- Inisialisasi ---
-        function initializeNetwork() {
-            // Hitung dan simpan posisi permanen perangkat
-            devices.forEach(device => {
-                device.pos = getDevicePosition(device);
-            });
-            drawNetwork();
-            updateMessage("Jaringan berhasil diinisialisasi. Siap mengirim paket.");
-        }
-
-        // --- Fungsi Menggambar ---
-        function drawNetwork() {
-            ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-
-            // 1. Gambar Switch (Pusat)
-            ctx.fillStyle = '#3b82f6';
-            ctx.beginPath();
-            ctx.arc(SWITCH_POS.x, SWITCH_POS.y, DEVICE_RADIUS + 5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 10px Inter';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('SWITCH', SWITCH_POS.x, SWITCH_POS.y);
-
-            // 2. Gambar Kabel dan Perangkat
-            devices.forEach((device, index) => {
-                const pos = device.pos;
-
-                // Gambar Kabel (Garis antara Switch dan Perangkat)
-                ctx.strokeStyle = '#9ca3af';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(SWITCH_POS.x, SWITCH_POS.y);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-
-                // Gambar Perangkat (PC)
-                ctx.fillStyle = device.color;
-                ctx.beginPath();
-                ctx.arc(pos.x, pos.y, DEVICE_RADIUS, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Teks ID Perangkat
-                ctx.fillStyle = '#1f2937';
-                ctx.font = 'bold 12px Inter';
-                ctx.fillText(device.id, pos.x, pos.y - DEVICE_RADIUS - 5);
-                ctx.font = '10px Inter';
-                ctx.fillText(device.ip, pos.x, pos.y + DEVICE_RADIUS + 10);
-
-                // Teks Koneksi ke Switch (Port)
-                ctx.fillStyle = '#1f2937';
-                ctx.font = '10px Inter';
-                const midX = (SWITCH_POS.x + pos.x) / 2;
-                const midY = (SWITCH_POS.y + pos.y) / 2;
-                ctx.fillText(`Port ${index + 1}`, midX + 15, midY);
-            });
-        }
-
-        // --- Fungsi Animasi Paket ---
-        function createPacket(source, destination) {
-            const startPos = source.pos;
-            return {
-                x: startPos.x,
-                y: startPos.y,
-                source: source,
-                destination: destination,
-                step: 0, // 0: Menuju Switch, 1: Memproses, 2: Menuju Tujuan, 3: Selesai
-                totalDistanceToSwitch: Math.hypot(SWITCH_POS.x - startPos.x, SWITCH_POS.y - startPos.y),
-                totalDistanceToDest: Math.hypot(destination.pos.x - SWITCH_POS.x, destination.pos.y - SWITCH_POS.y),
-                progress: 0, // 0.0 sampai 1.0
-                speed: 0.015, // Kecepatan Animasi
-                color: source.color,
-                isBroadcast: false,
-            };
-        }
-
-        function animate() {
-            if (!packet) {
-                isSimulating = false;
-                return;
+        // Data Kuis Pilihan Ganda
+        const allQuestions = [
+            {
+                question: "Apa perangkat jaringan yang berfungsi menghubungkan dua jaringan berbeda dan menentukan jalur terbaik bagi paket data?",
+                options: ["Hub", "Switch", "Router", "Modem"],
+                answer: "Router"
+            },
+            {
+                question: "Jenis jaringan apa yang cakupannya paling luas, menghubungkan antar kota atau negara?",
+                options: ["LAN", "MAN", "WAN", "PAN"],
+                answer: "WAN"
+            },
+            {
+                question: "Sistem yang menerjemahkan nama domain (misal: 'google.com') menjadi alamat IP disebut...",
+                options: ["IP Address", "TCP/IP", "DNS", "HTTP"],
+                answer: "DNS"
+            },
+            {
+                question: "Topologi jaringan yang semua perangkatnya terhubung ke satu titik pusat (seperti Switch/Hub) adalah...",
+                options: ["Bus", "Ring", "Star", "Mesh"],
+                answer: "Star"
+            },
+            {
+                question: "Apa tujuan utama dari jaringan komputer?",
+                options: ["Mempercepat pengetikan", "Berbagi sumber daya dan komunikasi", "Menyimpan data di satu tempat", "Mengurangi penggunaan listrik"],
+                answer: "Berbagi sumber daya dan komunikasi"
+            },
+            {
+                question: "Perangkat yang mengubah sinyal digital menjadi analog dan sebaliknya agar bisa melewati jalur telepon/serat optik adalah...",
+                options: ["Router", "Hub", "Modem", "Switch"],
+                answer: "Modem"
+            },
+            {
+                question: "Jaringan komputer di dalam satu gedung atau area kecil disebut...",
+                options: ["WAN", "MAN", "LAN", "Intranet"],
+                answer: "LAN"
             }
+        ];
+        
+        // Variabel Status Petualangan
+        let currentMateriIndex = 0;
+        const materiSections = [
+            "materi-1", "materi-2", "materi-3", "materi-4", "materi-5", "materi-6", "quiz-section"
+        ];
+        let quizQuestions = [];
+        
+        // Komponen DOM
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const adventureContent = document.getElementById('adventure-content');
+        const startButton = document.getElementById('start-button');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const quizForm = document.getElementById('quiz-form');
+        const scoreDisplay = document.getElementById('score-display');
+        
+        // --------------------------------------------------
+        // FUNGSI UTAMA
+        // --------------------------------------------------
 
-            drawNetwork(); // Gambar ulang jaringan statis
+        // Fungsi untuk memulai petualangan
+        startButton.onclick = function() {
+            welcomeScreen.style.display = 'none';
+            adventureContent.style.display = 'block';
+            
+            // Inisialisasi Kuis dan Tampilkan Materi Pertama
+            initializeQuiz();
+            showMateri(0);
+        };
 
-            // Update posisi paket
-            packet.progress += packet.speed;
+        // Fungsi untuk navigasi antar materi
+        function navigate(direction) {
+            // Sembunyikan materi/kuis saat ini
+            hideCurrentMateri();
 
-            let currentX = packet.x;
-            let currentY = packet.y;
+            // Pindah indeks
+            currentMateriIndex += direction;
 
-            if (packet.step === 0) {
-                // Tahap 0: Dari Perangkat Asal ke Switch
-                if (packet.progress < 1) {
-                    currentX = packet.source.pos.x + (SWITCH_POS.x - packet.source.pos.x) * packet.progress;
-                    currentY = packet.source.pos.y + (SWITCH_POS.y - packet.source.pos.y) * packet.progress;
-                    updateMessage(`[${packet.source.id}] Mengirim paket ke Switch...`);
-                } else {
-                    // Sampai di Switch
-                    packet.step = 1;
-                    packet.progress = 0;
-                }
-            } else if (packet.step === 1) {
-                // Tahap 1: Switch Memproses (Jeda Singkat)
-                if (packet.progress < 0.2) { // Jeda 0.2 unit waktu
-                    currentX = SWITCH_POS.x;
-                    currentY = SWITCH_POS.y;
-                    
-                    if (packet.progress < 0.01) {
-                        // Logika Pembelajaran MAC Address (Hanya dijalankan sekali)
-                        if (!macTable[packet.source.mac]) {
-                            const sourcePort = devices.findIndex(d => d.id === packet.source.id) + 1;
-                            macTable[packet.source.mac] = { port: sourcePort, ip: packet.source.ip };
-                            console.log(`MAC Table Update: ${packet.source.mac} (Port ${sourcePort})`);
-                            updateMessage(`Switch mempelajari alamat MAC ${packet.source.mac} dari ${packet.source.id}.`);
-                        }
-                    }
+            // Tampilkan materi/kuis baru
+            showMateri(currentMateriIndex);
 
-                    // Logika Forwarding Switch
-                    if (macTable[packet.destination.mac]) {
-                        // UNICAST: Tujuan ada di MAC Table
-                        updateMessage(`Switch melakukan UNICAST ke ${packet.destination.id} (Tujuan ditemukan).`);
-                    } else {
-                        // BROADCAST: Tujuan belum ada di MAC Table
-                        packet.isBroadcast = true;
-                        updateMessage(`Switch melakukan BROADCAST! Tujuan ${packet.destination.id} tidak ditemukan.`);
-                    }
+            // Jalankan animasi saat berpindah
+            if (currentMateriIndex < materiSections.length - 1) {
+                runPacketAnimation();
+            }
+        }
 
-                } else {
-                    // Mulai kirim ke tujuan
-                    packet.step = 2;
-                    packet.progress = 0;
-                }
-            } else if (packet.step === 2) {
-                // Tahap 2: Dari Switch ke Tujuan
-                if (packet.progress < 1) {
-                    currentX = SWITCH_POS.x + (packet.destination.pos.x - SWITCH_POS.x) * packet.progress;
-                    currentY = SWITCH_POS.y + (packet.destination.pos.y - SWITCH_POS.y) * packet.progress;
-
-                    if (packet.isBroadcast) {
-                        // Jika broadcast, gambarkan juga paket ke perangkat lain (Sederhana)
-                        devices.forEach(device => {
-                            if (device.id !== packet.source.id && device.id !== packet.destination.id) {
-                                // Gambar paket 'Ditolak' ke perangkat lain
-                                const x_reject = SWITCH_POS.x + (device.pos.x - SWITCH_POS.x) * packet.progress;
-                                const y_reject = SWITCH_POS.y + (device.pos.y - SWITCH_POS.y) * packet.progress;
-                                drawPacket(x_reject, y_reject, '#fef3c7', 'X'); // Kuning muda
-                            }
-                        });
-                        updateMessage(`BROADCAST! ${packet.destination.id} menerima, yang lain menolak.`);
-                    } else {
-                         updateMessage(`UNICAST! Paket diteruskan langsung ke ${packet.destination.id}.`);
-                    }
-
-                } else {
-                    // Sampai di Tujuan
-                    packet.step = 3;
-                    packet.progress = 0;
-                }
-            } else if (packet.step === 3) {
-                // Tahap 3: Selesai (Jeda)
-                currentX = packet.destination.pos.x;
-                currentY = packet.destination.pos.y;
-                updateMessage(`Paket berhasil diterima oleh ${packet.destination.id}!`);
-
-                if (packet.progress < 0.5) {
-                    packet.progress += 0.01;
-                } else {
-                    // Selesai Animasi
-                    packet = null;
-                    isSimulating = false;
-                    sendButton.disabled = false;
-                    updateMessage("Simulasi selesai. Kirim paket lagi.");
-
-                    // Perbarui MAC Table di console untuk referensi
-                    console.log("MAC Table saat ini:", macTable);
-                }
+        // Fungsi untuk menampilkan materi/kuis berdasarkan indeks
+        function showMateri(index) {
+            // Batasi indeks
+            if (index < 0) {
+                currentMateriIndex = 0;
+            } else if (index >= materiSections.length) {
+                currentMateriIndex = materiSections.length - 1;
             }
             
-            // Gambar Paket di posisi terbaru
-            drawPacket(currentX, currentY, packet.color);
+            // Tambahkan kelas 'active'
+            const currentSectionId = materiSections[currentMateriIndex];
+            const currentSection = document.getElementById(currentSectionId);
+            currentSection.classList.add('active');
 
-            // Loop Animasi
-            animationFrameId = requestAnimationFrame(animate);
-        }
+            // Atur status tombol navigasi
+            prevBtn.disabled = currentMateriIndex === 0;
+            nextBtn.disabled = currentMateriIndex === materiSections.length - 1;
 
-        function drawPacket(x, y, color, text = 'P') {
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(x, y, PACKET_RADIUS, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 8px Inter';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(text, x, y);
-        }
-
-        function updateMessage(message) {
-            messageBox.textContent = message;
-        }
-
-        // --- Fungsi Pemicu Utama ---
-        function startSimulation() {
-            if (isSimulating) return;
-
-            const sourceId = document.getElementById('sourceDevice').value;
-            const destId = document.getElementById('destinationDevice').value;
-
-            if (sourceId === destId) {
-                updateMessage("Kesalahan: Perangkat asal dan tujuan tidak boleh sama!");
-                return;
+            // Atur teks tombol 'Selanjutnya'
+            if (currentMateriIndex === materiSections.length - 2) {
+                nextBtn.textContent = 'Mulai Ujian Data →';
+            } else if (currentMateriIndex === materiSections.length - 1) {
+                nextBtn.textContent = 'Selesai';
+                nextBtn.disabled = true;
+                // Pastikan kuis form terlihat dan tombol submit aktif
+                document.getElementById('submit-quiz').style.display = 'block';
+                scoreDisplay.textContent = 'Jawab semua pertanyaan di atas.';
+            } else {
+                const nextTitle = document.getElementById(materiSections[currentMateriIndex + 1]).dataset.title;
+                nextBtn.textContent = `Wilayah Selanjutnya: ${nextTitle} →`;
+                document.getElementById('submit-quiz').style.display = 'none'; // Sembunyikan tombol submit di materi
+                scoreDisplay.textContent = ''; // Kosongkan skor
             }
 
-            const source = devices.find(d => d.id === sourceId);
-            const destination = devices.find(d => d.id === destId);
-
-            if (!source || !destination) return;
-
-            isSimulating = true;
-            sendButton.disabled = true;
-
-            // Batalkan frame sebelumnya jika ada
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
+            // Atur teks tombol 'Sebelumnya'
+            if (currentMateriIndex > 0 && currentMateriIndex < materiSections.length - 1) {
+                const prevTitle = document.getElementById(materiSections[currentMateriIndex - 1]).dataset.title;
+                prevBtn.textContent = `← Wilayah Sebelumnya: ${prevTitle}`;
+            } else if (currentMateriIndex === materiSections.length - 1) {
+                 prevBtn.textContent = `← Wilayah Sebelumnya: IP Address dan DNS`;
+            } else {
+                prevBtn.textContent = `← Wilayah Sebelumnya`;
             }
-
-            // Buat paket baru dan mulai animasi
-            packet = createPacket(source, destination);
-            animate();
         }
 
-        // Pastikan kode dijalankan setelah DOM dimuat
-        window.onload = initializeNetwork;
+        // Fungsi untuk menyembunyikan materi/kuis saat ini
+        function hideCurrentMateri() {
+            const activeSections = document.querySelectorAll('.materi-section.active');
+            activeSections.forEach(section => {
+                section.classList.remove('active');
+            });
+        }
+        
+        // --------------------------------------------------
+        // FUNGSI KUIS
+        // --------------------------------------------------
 
+        // Fungsi untuk mengacak dan memilih soal kuis
+        function initializeQuiz() {
+            // Acak array soal
+            const shuffled = allQuestions.sort(() => 0.5 - Math.random());
+            // Ambil 5 soal pertama
+            quizQuestions = shuffled.slice(0, 5);
+            
+            let html = '';
+            quizQuestions.forEach((q, index) => {
+                // Acak opsi jawaban (untuk memastikan jawaban benar tidak selalu di posisi yang sama)
+                const optionsShuffled = q.options.sort(() => 0.5 - Math.random());
+                
+                let optionsHtml = '';
+                optionsShuffled.forEach((option) => {
+                    optionsHtml += `
+                        <label>
+                            <input type="radio" name="question-${index}" value="${option}">
+                            ${option}
+                        </label>
+                    `;
+                });
+
+                html += `
+                    <div class="quiz-question">
+                        <p><strong>${index + 1}. ${q.question}</strong></p>
+                        <div class="options-group">
+                            ${optionsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            quizForm.innerHTML = html;
+        }
+
+        // Fungsi untuk menghitung dan menampilkan skor kuis
+        function submitQuiz() {
+            let score = 0;
+            let totalQuestions = quizQuestions.length;
+            
+            // Iterasi melalui setiap soal
+            quizQuestions.forEach((q, index) => {
+                const selector = `input[name="question-${index}"]:checked`;
+                const selected = document.querySelector(selector);
+                
+                // Cek jawaban
+                if (selected && selected.value === q.answer) {
+                    score++;
+                }
+            });
+
+            // Tampilkan hasil
+            scoreDisplay.innerHTML = `
+                🎉 **SKOR AKHIRMU:** ${score} / ${totalQuestions}
+                <p style="color: var(--text-color); font-size: 0.9em; margin-top: 10px;">
+                    ${score === totalQuestions ? 'Selamat! Kamu adalah Data Explorer sejati!' : 'Terus belajar dan ulangi petualanganmu!'}
+                </p>
+            `;
+            
+            // Matikan tombol submit setelah selesai
+            document.getElementById('submit-quiz').disabled = true;
+        }
+
+        // --------------------------------------------------
+        // FUNGSI ANIMASI SEDERHANA
+        // --------------------------------------------------
+
+        // Fungsi untuk membuat animasi paket data menggunakan CSS Transition
+        function runPacketAnimation() {
+            // Hapus paket lama jika ada
+            let oldPackets = document.querySelectorAll('.data-packet');
+            oldPackets.forEach(p => p.remove());
+
+            const currentSection = document.getElementById(materiSections[currentMateriIndex]);
+            const placeholder = currentSection.querySelector('.animation-placeholder');
+            
+            // Pastikan placeholder ada dan ini bukan bagian kuis
+            if (!placeholder || currentMateriIndex === materiSections.length - 1) return;
+
+            // Buat paket data baru
+            const packet = document.createElement('div');
+            packet.className = 'data-packet';
+            
+            // Tentukan posisi awal dan akhir
+            const startX = -30; // Mulai dari kiri luar
+            const endX = placeholder.offsetWidth + 30; // Sampai kanan luar
+
+            // Tentukan posisi vertikal (di tengah placeholder)
+            const startY = 5;
+
+            // Terapkan posisi awal
+            packet.style.transform = `translate(${startX}px, ${startY}px)`;
+            packet.style.opacity = '1';
+            packet.style.left = '0';
+            packet.style.top = '0';
+            packet.style.position = 'relative'; // Ubah dari absolute ke relative agar di dalam flow
+
+            // Sisipkan paket ke placeholder
+            placeholder.appendChild(packet);
+
+            // Jeda singkat sebelum memulai transisi (agar transisi terlihat)
+            setTimeout(() => {
+                // Terapkan posisi akhir (menggunakan translate untuk performa yang lebih baik)
+                packet.style.transition = 'transform 2s linear, opacity 0.5s ease-out';
+                packet.style.transform = `translate(${endX}px, ${startY}px)`;
+                
+                // Setelah animasi selesai, hapus paket
+                setTimeout(() => {
+                    packet.style.opacity = '0';
+                    setTimeout(() => packet.remove(), 500);
+                }, 2000); // 2000ms adalah durasi transisi
+            }, 100);
+        }
+
+        // --------------------------------------------------
+        // INISIALISASI
+        // --------------------------------------------------
+        
+        // Pastikan kuis diinisialisasi saat halaman dimuat (untuk mendapatkan soal acak)
+        initializeQuiz(); 
     </script>
 </body>
 </html>
